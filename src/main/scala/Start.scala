@@ -1,12 +1,16 @@
+import com.google.common.collect.Lists
 import com.twitter.hbc.ClientBuilder
 import com.twitter.hbc.core.endpoint.UserstreamEndpoint
 import com.twitter.hbc.core.Constants
 import com.twitter.hbc.core.processor.StringDelimitedProcessor
 import com.twitter.hbc.httpclient.auth.OAuth1
-import java.util.concurrent.LinkedBlockingQueue
+import com.twitter.hbc.twitter4j.v3.Twitter4jUserstreamClient
+import java.util.concurrent.{Executors, ExecutorService, LinkedBlockingQueue}
+import twitter4j.{UserStreamListener, StatusListener}
 
 object Start {
   val MSG_START_SIZE = 100
+  val THREAD_COUNT = 2
 
   def main(args: Array[String]) {
     val endpoint = new UserstreamEndpoint
@@ -29,12 +33,20 @@ object Start {
       .processor(new StringDelimitedProcessor(msgQueue))
       .build
 
-    client.connect
+    val pool = Executors.newFixedThreadPool(THREAD_COUNT)
+    val listeners = Lists.newArrayList[UserStreamListener](new ReplyListener)
+    val t4jClient = new Twitter4jUserstreamClient(client, msgQueue, listeners, pool)
+    t4jClient.connect
 
-    while (!client.isDone) {
-      val msg = msgQueue.take
-      println("msg: " + msg)
+    for (i <- 1 to THREAD_COUNT) {
+      t4jClient.process
     }
+
+    // Need to figure out a good way to stay around waiting for Ctrl+D without
+    // using up CPU.
+    Thread.sleep(30000)
+
+    client.stop
   }
 
 }
