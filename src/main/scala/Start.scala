@@ -5,7 +5,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor
 import com.twitter.hbc.httpclient.auth.OAuth1
 import java.util.concurrent.LinkedBlockingQueue
 
-object start {
+object Start {
   val MSG_START_SIZE = 100
 
   def main(args: Array[String]) {
