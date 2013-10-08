@@ -1,3 +1,5 @@
+package net.rdrei.twime
+
 import com.google.common.collect.Lists
 import com.twitter.hbc.ClientBuilder
 import com.twitter.hbc.core.endpoint.UserstreamEndpoint
@@ -5,8 +7,8 @@ import com.twitter.hbc.core.Constants
 import com.twitter.hbc.core.processor.StringDelimitedProcessor
 import com.twitter.hbc.httpclient.auth.OAuth1
 import com.twitter.hbc.twitter4j.v3.Twitter4jUserstreamClient
-import java.util.concurrent.{Executors, ExecutorService, LinkedBlockingQueue}
-import twitter4j.{UserStreamListener, StatusListener}
+import java.util.concurrent.{Executors, LinkedBlockingQueue}
+import twitter4j.UserStreamListener
 
 object Start {
   val MSG_START_SIZE = 100
@@ -42,9 +44,10 @@ object Start {
       t4jClient.process
     }
 
-    // Need to figure out a good way to stay around waiting for Ctrl+D without
-    // using up CPU.
-    Thread.sleep(30000)
+    while (!t4jClient.isDone) {
+      // There must be a better way for this ...
+      Thread.sleep(1000)
+    }
 
     client.stop
   }

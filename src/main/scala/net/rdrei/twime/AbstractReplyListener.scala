@@ -1,9 +1,9 @@
+package net.rdrei.twime
+
 import twitter4j._
 
-class ReplyListener extends UserStreamListener {
-  override def onStatus(status: Status) {
-    println("New interesting status: ", status.toString)
-  }
+abstract class AbstractReplyListener extends UserStreamListener {
+  def onStatus(status: Status)
 
   def onException(ex: Exception) {}
 
