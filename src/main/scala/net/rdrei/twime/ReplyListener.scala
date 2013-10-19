@@ -11,7 +11,7 @@ class ReplyListener extends AbstractReplyListener {
     if (!isInteresting(status))
       return
 
-    val update = handleTimeZoneQuery(status).getOrElse(handleUnspeficiedQuery(status))
+    val update = handleTimeZoneQuery(status).getOrElse(handleUnspecifiedQuery(status))
     T4JClient().updateStatus(update)
   }
 
@@ -38,7 +38,7 @@ class ReplyListener extends AbstractReplyListener {
     Some(new StatusUpdate(s"@$screenName The current time in $timezoneName is $time."))
   }
 
-  private def handleUnspeficiedQuery(status: Status) : StatusUpdate = {
+  private def handleUnspecifiedQuery(status: Status) : StatusUpdate = {
     val screenName = status.getUser.getScreenName
     val time = DateTime.now.toString(DateTimeFormat.forPattern(TIME_FORMAT))
     val update = new StatusUpdate(s"@$screenName The current time is $time.")
