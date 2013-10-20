@@ -21,7 +21,7 @@ class ReplyListener extends AbstractReplyListener {
 
   private def handleTimeZoneQuery(status: Status) : Option[StatusUpdate] = {
     val text = status.getText
-    val pattern = "(?i)(?:(what is)|(what's)) the time in ([a-z/]+)\\??$"r
+    val pattern = "(?i)(?:(what is)|(what's)) the time in ([\\w\\s,./]+)\\??$"r
 
     pattern.findFirstMatchIn(text).flatMap(tzMatch => makeTimeZoneStatusUpdate(status, tzMatch.group(3)))
   }
