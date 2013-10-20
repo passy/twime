@@ -30,10 +30,10 @@ class ReplyListener extends AbstractReplyListener {
     if (DateTimeZone.getAvailableIDs.contains(id)) Some(DateTimeZone.forID(id)) else None
 
   private def makeTimeZoneStatusUpdate(status: Status, timezoneName: String) : Option[StatusUpdate] = {
-    // zomg, this is awesome
-    getTimeZone(timezoneName).orElse(CityDatabase(timezoneName)).flatMap(timezone => {
+    // zomg, this is teh awesome
+    getTimeZone(timezoneName).orElse(CityDatabase(timezoneName).flatMap(getTimeZone)).flatMap(timezone => {
       val screenName = status.getUser.getScreenName
-      val time = DateTime.now(DateTimeZone.forID(timezoneName)).toString(DateTimeFormat.forPattern(TIME_FORMAT))
+      val time = DateTime.now(timezone).toString(DateTimeFormat.forPattern(TIME_FORMAT))
 
       Some(new StatusUpdate(s"@$screenName The current time in $timezoneName is $time."))
     })

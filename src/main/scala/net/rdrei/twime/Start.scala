@@ -38,6 +38,8 @@ object Start {
     val pool = Executors.newFixedThreadPool(THREAD_COUNT)
     val listeners = Lists.newArrayList[UserStreamListener](new ReplyListener)
     val t4jClient = new Twitter4jUserstreamClient(client, msgQueue, listeners, pool)
+
+    CityDatabase.load()
     t4jClient.connect
 
     for (i <- 1 to THREAD_COUNT) {
