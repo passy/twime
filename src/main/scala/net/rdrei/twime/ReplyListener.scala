@@ -3,7 +3,6 @@ package net.rdrei.twime
 import twitter4j.{StatusUpdate, Status}
 import org.joda.time.{DateTimeZone, DateTime}
 import org.joda.time.format.DateTimeFormat
-import scala.collection.JavaConverters._
 
 class ReplyListener extends AbstractReplyListener {
   private val TIME_FORMAT = "d.M.y HH:mm:ss"
@@ -19,19 +18,19 @@ class ReplyListener extends AbstractReplyListener {
   private def isInteresting(status: Status): Boolean =
     status.getUser.getScreenName != "twimebot"
 
-  private def handleTimeZoneQuery(status: Status) : Option[StatusUpdate] = {
+  private def handleTimeZoneQuery(status: Status): Option[StatusUpdate] = {
     val text = status.getText
-    val pattern = "(?i)(?:(what is)|(what's)) the time in ([\\w\\s,./]+)\\??$"r
+    val pattern = "(?i)(?:(what is)|(what's)) the time in ([\\w\\s,./]+)\\??$" r
 
     pattern.findFirstMatchIn(text).flatMap(tzMatch => makeTimeZoneStatusUpdate(status, tzMatch.group(3)))
   }
 
-  private def getTimeZone(id : String) : Option[DateTimeZone] =
+  private def getTimeZone(id: String): Option[DateTimeZone] =
     if (DateTimeZone.getAvailableIDs.contains(id)) Some(DateTimeZone.forID(id)) else None
 
-  private def makeTimeZoneStatusUpdate(status: Status, timezoneName: String) : Option[StatusUpdate] = {
+  private def makeTimeZoneStatusUpdate(status: Status, timezoneName: String): Option[StatusUpdate] = {
     // zomg, this is teh awesome
-    getTimeZone(timezoneName).orElse(CityDatabase(timezoneName).flatMap(getTimeZone)).flatMap(timezone => {
+    getTimeZone(timezoneName).orElse(CityDatabase.find(timezoneName).flatMap(getTimeZone)).flatMap(timezone => {
       val screenName = status.getUser.getScreenName
       val time = DateTime.now(timezone).toString(DateTimeFormat.forPattern(TIME_FORMAT))
 
@@ -39,7 +38,7 @@ class ReplyListener extends AbstractReplyListener {
     })
   }
 
-  private def handleUnspecifiedQuery(status: Status) : StatusUpdate = {
+  private def handleUnspecifiedQuery(status: Status): StatusUpdate = {
     val screenName = status.getUser.getScreenName
     val time = DateTime.now.toString(DateTimeFormat.forPattern(TIME_FORMAT))
     val update = new StatusUpdate(s"@$screenName The current time is $time.")
